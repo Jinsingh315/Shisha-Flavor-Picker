@@ -1,1 +1,46 @@
+function handleCategorySelection(checkbox) {
+  const subQuestionsContainer = document.getElementById("subQuestions");
+
+  // Remove existing sub-questions for unchecked categories
+  if (!checkbox.checked) {
+    document.getElementById(`sub-${checkbox.value}`)?.remove();
+    return;
+  }
+
+  // Dynamically create sub-questions for the selected category
+  const selectedCategory = checkbox.value;
+  const options = selectedCategory === "Fruity"
+    ? ["Strawberry", "Mango", "Apple", "Pineapple"]
+    : ["Chocolate Cake", "Vanilla Ice Cream", "Cheesecake"];
+
+  const subQuestionDiv = document.createElement("div");
+  subQuestionDiv.id = `sub-${selectedCategory}`;
+  subQuestionDiv.innerHTML = `
+    <h3>Which ${selectedCategory.toLowerCase()} flavors do you like?</h3>
+    ${options
+      .map(
+        option => `<label><input type="checkbox" value="${option}" name="${selectedCategory.toLowerCase()}">${option}</label><br>`
+      )
+      .join("")}
+  `;
+
+  subQuestionsContainer.appendChild(subQuestionDiv);
+}
+
+function submitForm() {
+  const formData = new FormData(document.getElementById("questionnaire"));
+
+  // Collect user preferences
+  const selectedCategories = formData.getAll("taste");
+  const fruitySelections = formData.getAll("fruity");
+  const dessertSelections = formData.getAll("dessert");
+
+  console.log({
+    categories: selectedCategories,
+    fruity: fruitySelections,
+    dessert: dessertSelections,
+  });
+
+  alert("Form submitted! Check the console for your preferences.");
+}
 
