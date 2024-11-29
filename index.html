@@ -1,78 +1,158 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Shisha Flavor Demo</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shisha Flavor Recommendation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .question {
+            margin-bottom: 20px;
+        }
+        .question label {
+            font-weight: bold;
+        }
+        .question select, .question input[type="checkbox"], .question input[type="range"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+        }
+        .multi-select {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .multi-select label {
+            margin-right: 10px;
+        }
+        #fruits, #desserts {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-  <h1>Shisha Flavor Picker</h1>
-  <form id="questionnaire">
-    <label>What flavors do you like?</label><br>
-    <input type="checkbox" name="flavors" value="Fruity"> Fruity<br>
-    <input type="checkbox" name="flavors" value="Citrus"> Citrus<br>
-    <input type="checkbox" name="flavors" value="Candy"> Candy<br>
-    <input type="checkbox" name="flavors" value="Dessert"> Dessert<br>
-    
-    <label>Do you want a cold feeling?</label><br>
-    <input type="radio" name="cold" value="Yes"> Yes<br>
-    <input type="radio" name="cold" value="No"> No<br>
-    
-    <label>Preferred Strength:</label><br>
-    <select name="strength">
-      <option value="Mild">Mild</option>
-      <option value="Medium">Medium</option>
-      <option value="High">High</option>
-    </select><br>
-    
-    <button type="button" onclick="showRecommendations()">Submit</button>
-  </form>
+    <h1>Shisha Flavor Recommendation</h1>
 
-  <div id="recommendations" style="display:none;">
-    <h2>Your Recommendations</h2>
-    <div id="sliders">
-      <!-- Sliders will be dynamically added here -->
+    <!-- First Question -->
+    <div class="question">
+        <label for="taste-category">Select your preferred taste category:</label>
+        <select id="taste-category">
+            <option value="">--Select--</option>
+            <option value="fruity">Fruity</option>
+            <option value="citrus">Citrus</option>
+            <option value="candy">Candy</option>
+            <option value="dessert">Dessert</option>
+        </select>
     </div>
-    <canvas id="flavorChart"></canvas>
-  </div>
 
-  <script>
-    function showRecommendations() {
-      // Example recommendations
-      const flavors = ['Mint', 'Blueberry', 'Lemon'];
-      const sliderContainer = document.getElementById('sliders');
-      sliderContainer.innerHTML = '';
+    <!-- Fruity Category Question -->
+    <div id="fruits" class="question">
+        <label>Choose the fruits you prefer (multiple choice):</label>
+        <div class="multi-select">
+            <label><input type="checkbox" value="apple"> Apple</label>
+            <label><input type="checkbox" value="orange"> Orange</label>
+            <label><input type="checkbox" value="grape"> Grape</label>
+            <label><input type="checkbox" value="melon"> Melon</label>
+            <label><input type="checkbox" value="berry"> Berry</label>
+        </div>
+    </div>
 
-      flavors.forEach(flavor => {
-        const sliderDiv = document.createElement('div');
-        sliderDiv.innerHTML = `
-          <label>${flavor}</label>
-          <input type="range" min="0" max="100" value="33" data-flavor="${flavor}" onchange="updateChart()">
-        `;
-        sliderContainer.appendChild(sliderDiv);
-      });
+    <!-- Dessert Category Question -->
+    <div id="desserts" class="question">
+        <label>Choose your preferred dessert flavors (multiple choice):</label>
+        <div class="multi-select">
+            <label><input type="checkbox" value="chocolate"> Chocolate</label>
+            <label><input type="checkbox" value="vanilla"> Vanilla</label>
+            <label><input type="checkbox" value="caramel"> Caramel</label>
+            <label><input type="checkbox" value="coffee"> Coffee</label>
+            <label><input type="checkbox" value="strawberry"> Strawberry</label>
+        </div>
+    </div>
 
-      document.getElementById('recommendations').style.display = 'block';
-      updateChart();
-    }
+    <!-- Cold Feeling Question -->
+    <div class="question">
+        <label for="cold-feeling">Do you want a cold feeling in the shisha?</label>
+        <select id="cold-feeling">
+            <option value="">--Select--</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+        </select>
+    </div>
 
-    function updateChart() {
-      const sliders = document.querySelectorAll('input[type="range"]');
-      const data = Array.from(sliders).map(slider => parseInt(slider.value));
+    <!-- Strength Question -->
+    <div class="question">
+        <label for="strength">What strength do you prefer?</label>
+        <select id="strength">
+            <option value="">--Select--</option>
+            <option value="mild">Mild Strength</option>
+            <option value="medium">Medium Strength</option>
+            <option value="high">High Strength</option>
+        </select>
+    </div>
 
-      const ctx = document.getElementById('flavorChart').getContext('2d');
-      if (window.chart) window.chart.destroy();
+    <!-- Submit Button -->
+    <div class="question">
+        <button id="submit">Get Recommendations</button>
+    </div>
 
-      window.chart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Mint', 'Blueberry', 'Lemon'],
-          datasets: [{
-            data: data,
-            backgroundColor: ['#76c7c0', '#ffb3ba', '#c7e9b4'],
-          }],
-        },
-      });
-    }
-  </script>
+    <!-- Recommendation Display -->
+    <div id="recommendations" class="question" style="display: none;">
+        <h3>Your Recommended Flavors</h3>
+        <p id="flavor-recommendation"></p>
+    </div>
+
+    <script>
+        // Show/Hide options based on selected categories
+        document.getElementById("taste-category").addEventListener("change", function() {
+            const tasteCategory = this.value;
+            const fruits = document.getElementById("fruits");
+            const desserts = document.getElementById("desserts");
+
+            // Hide both by default
+            fruits.style.display = "none";
+            desserts.style.display = "none";
+
+            if (tasteCategory === "fruity") {
+                fruits.style.display = "block";
+            } else if (tasteCategory === "dessert") {
+                desserts.style.display = "block";
+            }
+        });
+
+        // Handle the form submission
+        document.getElementById("submit").addEventListener("click", function() {
+            const tasteCategory = document.getElementById("taste-category").value;
+            const coldFeeling = document.getElementById("cold-feeling").value;
+            const strength = document.getElementById("strength").value;
+
+            let selectedFruits = [];
+            let selectedDesserts = [];
+
+            if (tasteCategory === "fruity") {
+                selectedFruits = Array.from(document.querySelectorAll("#fruits input[type='checkbox']:checked"))
+                    .map(input => input.value);
+            } else if (tasteCategory === "dessert") {
+                selectedDesserts = Array.from(document.querySelectorAll("#desserts input[type='checkbox']:checked"))
+                    .map(input => input.value);
+            }
+
+            let recommendations = `You prefer a ${tasteCategory} flavor category with a ${strength} strength.`;
+
+            if (tasteCategory === "fruity" && selectedFruits.length > 0) {
+                recommendations += ` You like the following fruits: ${selectedFruits.join(", ")}.`;
+            } else if (tasteCategory === "dessert" && selectedDesserts.length > 0) {
+                recommendations += ` You like the following desserts: ${selectedDesserts.join(", ")}.`;
+            }
+
+            if (coldFeeling) {
+                recommendations += ` You want a cold feeling: ${coldFeeling}.`;
+            }
+
+            document.getElementById("flavor-recommendation").innerText = recommendations;
+            document.getElementById("recommendations").style.display = "block";
+        });
+    </script>
 </body>
 </html>
