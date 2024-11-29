@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Shisha Flavor Demo</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h1>Shisha Flavor Picker</h1>
+  <form id="questionnaire">
+    <label>What flavors do you like?</label><br>
+    <input type="checkbox" name="flavors" value="Fruity"> Fruity<br>
+    <input type="checkbox" name="flavors" value="Citrus"> Citrus<br>
+    <input type="checkbox" name="flavors" value="Candy"> Candy<br>
+    <input type="checkbox" name="flavors" value="Dessert"> Dessert<br>
+    
+    <label>Do you want a cold feeling?</label><br>
+    <input type="radio" name="cold" value="Yes"> Yes<br>
+    <input type="radio" name="cold" value="No"> No<br>
+    
+    <label>Preferred Strength:</label><br>
+    <select name="strength">
+      <option value="Mild">Mild</option>
+      <option value="Medium">Medium</option>
+      <option value="High">High</option>
+    </select><br>
+    
+    <button type="button" onclick="showRecommendations()">Submit</button>
+  </form>
+
+  <div id="recommendations" style="display:none;">
+    <h2>Your Recommendations</h2>
+    <div id="sliders">
+      <!-- Sliders will be dynamically added here -->
+    </div>
+    <canvas id="flavorChart"></canvas>
+  </div>
+
+  <script>
+    function showRecommendations() {
+      // Example recommendations
+      const flavors = ['Mint', 'Blueberry', 'Lemon'];
+      const sliderContainer = document.getElementById('sliders');
+      sliderContainer.innerHTML = '';
+
+      flavors.forEach(flavor => {
+        const sliderDiv = document.createElement('div');
+        sliderDiv.innerHTML = `
+          <label>${flavor}</label>
+          <input type="range" min="0" max="100" value="33" data-flavor="${flavor}" onchange="updateChart()">
+        `;
+        sliderContainer.appendChild(sliderDiv);
+      });
+
+      document.getElementById('recommendations').style.display = 'block';
+      updateChart();
+    }
+
+    function updateChart() {
+      const sliders = document.querySelectorAll('input[type="range"]');
+      const data = Array.from(sliders).map(slider => parseInt(slider.value));
+
+      const ctx = document.getElementById('flavorChart').getContext('2d');
+      if (window.chart) window.chart.destroy();
+
+      window.chart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Mint', 'Blueberry', 'Lemon'],
+          datasets: [{
+            data: data,
+            backgroundColor: ['#76c7c0', '#ffb3ba', '#c7e9b4'],
+          }],
+        },
+      });
+    }
+  </script>
+</body>
+</html>
